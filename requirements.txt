@@ -1,0 +1,11 @@
+Django==3.2.4
+django-allauth==0.44.0
+djangorestframework==3.12.4
+djangorestframework-simplejwt==4.7.1
+django-filter==2.4.0
+django-rq==2.4.1
+django-rest-auth==0.9.5
+Pillow==8.2.0
+pycryptodome==3.10.1
+
+
