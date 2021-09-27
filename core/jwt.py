@@ -21,13 +21,13 @@ class TokenObtainPairSerializer(TokenObtainPairSerializer):
             data['access'] = str(refresh.access_token)
             data["token"] = data.pop("access")
         except AuthenticationFailed:
-            username = (
-                    Q(username=attrs["username"]) | Q(email=attrs["username"]))
-            try:
-                User.objects.get(username)
-                error = {"password": "invalid password"}
-            except User.DoesNotExist:
-                error = {"username": "username or email cannot be found"}
+            error = {"password": "invalid password or email"}
+            if username := attrs.get('username', attrs.get('email')):
+                username = Q(username=username) | Q(email=username)
+                try:
+                    User.objects.get(username)
+                except User.DoesNotExist:
+                    error = {"username": "username or email cannot be found"}
 
             raise AuthenticationFailed(error)
 
