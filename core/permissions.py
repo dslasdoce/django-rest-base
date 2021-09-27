@@ -43,7 +43,11 @@ class BaseViewPermission(BasePermission):
         return False
 
 
-class PublicReadOnlyPermission(BaseViewPermission):
+class PublicReadPermission(BaseViewPermission):
+    """
+    This permission grants read access to anyone but write will require
+    user authentication
+    """
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
