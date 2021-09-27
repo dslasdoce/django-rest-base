@@ -1,6 +1,5 @@
-from rest_framework.response import Response
 from rest_auth.views import (
-    PasswordResetView, PasswordResetConfirmView, PasswordChangeView)
+    PasswordResetView, PasswordChangeView, PasswordResetConfirmView)
 from django.utils.translation import ugettext_lazy as _
 from apps.user.serializers import (
     PasswordResetConfirmSerializer,
@@ -8,7 +7,6 @@ from apps.user.serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from rest_auth.views import PasswordResetConfirmView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 

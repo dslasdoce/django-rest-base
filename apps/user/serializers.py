@@ -59,11 +59,13 @@ class RegistrationSerializer(serializers.Serializer):
         write_only=True, style={'input_type': 'password'})
     timezone = serializers.CharField(required=False)
 
-    def validate_username(self, username):
+    @staticmethod
+    def validate_username(username):
         username = get_adapter().clean_username(username)
         return username
 
-    def validate_email(self, email):
+    @staticmethod
+    def validate_email(email):
         email = get_adapter().clean_email(email)
         if allauth_settings.UNIQUE_EMAIL:
             if email and email_address_exists(email):
@@ -71,7 +73,8 @@ class RegistrationSerializer(serializers.Serializer):
                     _("A user is already registered with this e-mail address."))
         return email
 
-    def validate_password(self, password):
+    @staticmethod
+    def validate_password(password):
         return get_adapter().clean_password(password)
 
     def validate(self, data):
