@@ -1,18 +1,6 @@
-import logging
 import re
 from rest_framework import serializers
-from core.models import BaseModel
 from enum import IntFlag
-
-
-LOG = logging.getLogger(__name__)
-
-
-class BaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BaseModel
-        fields = ('date_created', 'date_updated')
-        read_only_fields = ('id', 'date_created', 'date_updated', 'user')
 
 
 class IntFlag(IntFlag):
@@ -69,6 +57,44 @@ class IntFlagHandler:
     This serves as middleware to convert bitwise flags to values and
     vice versa
     """
+    enum_class = IntFlag
+    default_choice_type = str
+    single_choice_only = False
+
+    @classmethod
+    def get_default_choice_type(cls):
+        return getattr(cls, 'default_choice_type', None)
+
+    """
+    This could be used as replacement to choice field specially if there are
+    additional information or representations for every choice
+    """
+    @classmethod
+    def as_choices(cls, key_type=None):
+        """
+        Convert the class properties defined in the enum_class into
+        list of key-value pair
+        """
+        if key_type is None:
+            key_type = cls.get_default_choice_type()
+        return cls.enum_class.as_choices(key_type)
+
+    @classmethod
+    def as_name_list(cls, lower=True, **kwargs):
+        """
+        Convert the class properties defined in the enum_class into
+        list of names
+        """
+        return cls.enum_class.as_name_list(lower=lower, **kwargs)
+
+    @classmethod
+    def as_values_list(cls):
+        return cls.enum_class.as_values_list()
+
+    @property
+    def extra_properties(self):
+        return self.enum_class(self.value).extra_properties
+
     def __init__(self, *flags):
         self.__flag_set = self.enum_class(0)
         self.__flag_class = self.enum_class
@@ -115,6 +141,10 @@ class IntFlagHandler:
         """
         return self.enum_class.to_representation(self.flags.name)
 
+    @property
+    def single_flag_name_lower(self):
+        return self.single_flag_name.lower()
+
     @classmethod
     def from_value(cls, value):
         """
@@ -143,28 +173,28 @@ class IntFlagHandler:
 
 
 class BitFlagChoiceField(serializers.ChoiceField):
-    def __init__(self, *args, bitflag_class=None, **kwargs):
-        self.bitflag_class = bitflag_class
+    def __init__(self, *args, intflag_handler=None, **kwargs):
+        self.intflag_handler = intflag_handler
 
-        if not bitflag_class:
-            raise TypeError('missing required keyword argument "bitflag_class"')
-        kwargs['choices'] = self.bitflag_class.as_choices()
+        if not intflag_handler:
+            raise TypeError('missing required keyword argument "intflag_handler"')
+        kwargs['choices'] = self.intflag_handler.as_choices()
         super().__init__(*args, **kwargs)
 
     def to_representation(self, value):
-        return self.bitflag_class.from_value(value).single_flag_name
+        return self.intflag_handler.from_value(value).single_flag_name
 
     def to_internal_value(self, data):
         if isinstance(data, list) or isinstance(data, tuple):
-            return self.bitflag_class(*data).value
+            return self.intflag_handler(*data).value
         else:
-            return self.bitflag_class(data).value
+            return self.intflag_handler(data).value
 
 
 class BitFlagMultipleChoiceField(BitFlagChoiceField,
                                  serializers.MultipleChoiceField):
     def to_representation(self, value):
-        return self.bitflag_class.from_value(value).flag_list
+        return self.intflag_handler.from_value(value).flag_list
 
     def to_internal_value(self, data):
-        return self.bitflag_class(*data).value
+        return self.intflag_handler(*data).value
