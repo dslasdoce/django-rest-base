@@ -1,7 +1,7 @@
 from django.db import models
-from moon_ml.models import BaseModel
-from moon_ml.utils import file_upload_to
-from moon_ml.managers import BaseManager
+from core.models import BaseModel
+from core.utils import file_upload_to
+from core.managers import BaseManager
 from apps.user.models import User
 from django.utils import timezone
 import pytz

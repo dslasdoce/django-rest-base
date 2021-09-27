@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import moon_ml.utils
+import core.utils
 
 
 class Migration(migrations.Migration):
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_updated', models.DateTimeField(auto_now=True)),
                 ('id', models.OneToOneField(db_column='id', on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='user_profile', serialize=False, to='user.user')),
-                ('image', models.ImageField(blank=True, null=True, upload_to=moon_ml.utils.file_upload_to)),
+                ('image', models.ImageField(blank=True, null=True, upload_to=core.utils.file_upload_to)),
             ],
             options={
                 'db_table': 'account_profiles',

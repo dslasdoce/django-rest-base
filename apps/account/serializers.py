@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 from apps.account.models import Profile
-from moon_ml.serializers import BaseSerializer
+from core.serializers import BaseSerializer
 from allauth.account.adapter import get_adapter
 from django.utils.translation import ugettext_lazy as _
 

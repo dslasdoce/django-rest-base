@@ -1,0 +1,116 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+{% block extrahead %}
+{% load admin_urls %}
+
+
+<!-- Render the rest of the ChangeList view by calling block.super -->
+{{ block.super }}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.5.1.js"
+  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous">
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<script>
+$(document).ready(function () {
+    const ctx = document.getElementById('myChart').getContext('2d');
+
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'users',
+                    data: [],
+                    lineTension: 0,
+                    backgroundColor: 'rgba(51, 51, 51, 0.5)',
+                    borderColor: 'rgba(51, 51, 51, 1)',
+                    pointBackgroundColor: 'rgba(51, 51, 51, 0.9)',
+                    pointRadius: 8,
+
+                },
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        reverse: false
+                    }
+                }]
+            }
+        },
+    });
+
+    function set_datedisplay(start, end) {
+        $('#user_chart_date span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    function update_new_users(start, end) {
+        $.ajax({
+            type: 'get',
+            url: '/admin/user/user/new_users/?start_date=' + start +'&end_date=' + end,
+            success: function (response) {
+                chart.data.datasets[0].data = response.totalusers;
+                chart.data.labels = response.labels;
+                chart.update()
+            },
+            error: function (e) {
+                console.log(e)
+            },
+        });
+    }
+
+    {#var start = moment().subtract(90, 'days').startOf('day');//moment(new Date("2010", "0", "01")).startOf('day');#}
+    var start = moment().startOf('year')
+    var end = moment().endOf('day');
+
+    $('#user_chart_date').daterangepicker({
+        startDate: start,
+        endDate: end,
+        ranges: {
+            'Last 90 Days': [moment().subtract(90, 'days').startOf('day'), end],
+            'Last 30 Days': [moment().subtract(30, 'days').startOf('day'), end],
+            'This Year': [moment().startOf('year'), end],
+            'Last Year': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')],
+        }
+    }, set_datedisplay);
+
+    $('#user_chart_date').on('apply.daterangepicker', function (ev, picker) {
+        const start = picker.startDate.format("YYYY-MM-DD");
+        const end = picker.endDate.format("YYYY-MM-DD");
+        update_new_users(start, end)
+    });
+
+    set_datedisplay(start, end);
+
+    update_new_users(start.format("YYYY-MM-DD"), end.format("YYYY-MM-DD"))
+
+    });
+
+
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+<!-- Render our chart -->
+<div style="width: 80%;">
+    <div class="pull-right" id="user_chart_date" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 30%">
+        <i class="fa fa-calendar"></i>&nbsp;
+        <span></span> <i class="fa fa-caret-down"></i>
+    </div>
+    <canvas style="margin-bottom: 30px; width: 60%; height: 50%;" id="myChart"></canvas>
+</div>
+<!-- Render the rest of the ChangeList view -->
+{{ block.super }}
+{% endblock %}

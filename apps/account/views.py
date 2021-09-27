@@ -2,14 +2,16 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
 from allauth.account import app_settings as allauth_settings
-from moon_ml.jwt import TokenObtainPairSerializer
-from moon_ml.views import BaseUserModelViewSet, BaseOneToOneViewSet
+from core.jwt import TokenObtainPairSerializer
+from core.views import BaseUserModelViewSet, BaseOneToOneViewSet
 from apps.account.models import Profile
 from apps.account.serializers import ProfileSerializer
 from apps.user.serializers import RegistrationSerializer
 from django.contrib.gis.geoip2 import GeoIP2
 from django.contrib.auth import logout
-from moon_ml.permissions import PublicCreatePermission
+from core.permissions import PublicCreatePermission
+from rest_auth.views import PasswordResetView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ProfileViewSet(BaseUserModelViewSet):
@@ -81,3 +83,12 @@ class MyProfileViewSet(BaseOneToOneViewSet):
     def my_profile(self, request, *args, **kwargs):
         serializer = self.get_serializer(instance=request.user)
         return Response(serializer.data)
+
+
+class PasswordResetView(PasswordResetView):
+    authentication_classes = (JWTAuthentication,)
+
+    def post(self, *args, **kwargs):
+        response = super().post(*args, **kwargs)
+        response.status_code = status.HTTP_201_CREATED
+        return response

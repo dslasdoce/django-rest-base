@@ -11,6 +11,7 @@ from allauth.utils import email_address_exists
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 from apps.user.forms import PasswordResetForm
+from django.conf import settings
 
 
 UserModel = get_user_model()
@@ -108,7 +109,10 @@ class PasswordResetSerializer(PasswordResetSerializer):
     password_reset_form_class = PasswordResetForm
 
     def get_email_options(self):
-        return {'email_template_name': 'user/account/password_reset_email.html'}
+        return {
+            'email_template_name': 'email/user_reset_password.html',
+            'extra_email_context': {'site_tag': settings.TAG_LINE}
+        }
 
     def validate_email(self, value):
         value = super().validate_email(value)
