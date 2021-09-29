@@ -32,6 +32,7 @@ from drf_yasg import openapi
 # viewset routers
 router = DefaultRouter()
 router.register('profiles', account.ProfileViewSet, basename='profiles')
+router.register('my-profile', account.ProfileViewSet, basename='my-profile')
 
 urlpatterns = [
     # admin
