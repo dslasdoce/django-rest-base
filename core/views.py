@@ -42,6 +42,14 @@ class BaseUserModelViewSet(BaseModelViewSet):
     def perform_create(self, serializer, **kwargs):
         super().perform_create(serializer, user=self.request.user, **kwargs)
 
+    def perform_create_unique_together(self, serializer, model,
+                                       unique_together_fields):
+        obj, _ = model.objects.get_or_create(**unique_together_fields)
+        serializer = (
+            self.get_serializer_class()(instance=obj, data=self.request.data))
+        serializer.is_valid()
+        serializer.save()
+
 
 class BaseOneToOneViewSet(BaseModelViewSet):
     """

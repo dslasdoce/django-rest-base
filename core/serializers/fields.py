@@ -154,7 +154,11 @@ class IntFlagHandler:
         so we can access each flags later on
         """
         value = value if value else 0
-        flags = [flag.name for flag in cls.enum_class if flag.value & value]
+        try:
+            flags = [flag.name for flag in cls.enum_class if flag.value & value]
+        except TypeError:
+            flags = [flag.name for flag in cls.enum_class if flag.name == value]
+
         return cls(*flags)
 
     @property

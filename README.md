@@ -7,7 +7,7 @@ sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contr
 
 Install conda then create python env
 ```
-conda create env -n cl-env python==3.8
+conda create env -n env-name python==3.9
 ```
 
 Install python requirements
@@ -15,9 +15,18 @@ Install python requirements
 pip install -r requirements.txt
 ```
 
+# Local Development
+## For Terminal Users
+```
+    conda activate env-name
+    python manage.py migrate
+    python manage.py runserver localhost:8080
+```
+
 # Deployment
 ## Google Cloud Run
 * Visit https://cloud.google.com/run/docs/continuous-deployment-with-cloud-build#new-service for instructions on how to start cloud run using DockerFile
+* Make sure to select the gcloud_services/cloudbuild.yaml on your cloud build trigger settings
 * To connect cloud run to cloud sql then make sure to add the SQL Client or SQL Admin role to the IAM Permission of projectID--compute@developer.gserviceaccount.com. Also Under Cloud Run connections, make sure the target Database is properly added
    * For sample django project you may visit https://cloud.google.com/python/django/run#cloning_the_django_app 
 # GCloud SQL

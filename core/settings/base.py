@@ -30,11 +30,14 @@ SECRET_KEY = os.environ.get(
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = []
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
     ),
     'DEFAULT_RENDERER_CLASSES': (
         # application/vnd.api+json
@@ -50,7 +53,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'COERCE_DECIMAL_TO_STRING': False
 }
@@ -74,7 +77,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'django_filters',
     'apps.user',
-    'apps.account'
+    'apps.account',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -85,6 +89,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -174,7 +179,7 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-################### Default Project Template Settings to #######################
+# ################## Default Project Template Settings to ######################
 SITE_ID = 1
 
 REDIS = os.environ.get('REDIS', 'localhost:6379')

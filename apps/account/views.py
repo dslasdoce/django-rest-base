@@ -37,8 +37,8 @@ class ProfileViewSet(BaseUserModelViewSet):
             return self.serializer_class
 
     def get_response_data(self, user):
-        if allauth_settings.EMAIL_VERIFICATION == \
-                allauth_settings.EmailVerificationMethod.MANDATORY:
+        if (allauth_settings.EMAIL_VERIFICATION ==
+                allauth_settings.EmailVerificationMethod.MANDATORY):
             return {"detail": _("Verification e-mail sent.")}
 
         token = TokenObtainPairSerializer()

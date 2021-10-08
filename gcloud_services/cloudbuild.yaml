@@ -1,0 +1,77 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '--build-arg'
+      - 'DB_NAME=${_DB_NAME}'
+      - '--build-arg'
+      - 'DB_PASSWORD=${_DB_PASSWORD}'
+      - '--build-arg'
+      - 'DB_USER=${_DB_USER}'
+      - '--build-arg'
+      - 'DB_HOST=${_DB_HOST}'
+      - '--no-cache'
+      - '-t'
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - .
+      - '-f'
+      - Dockerfile
+    id: Build
+  - name: 'docker/compose:1.29.2'
+    # this call to unit test will run a container based on the docker-compose.yaml under the service "unittest"
+    args:
+      - run
+      - '--rm'
+      - unittest
+    id: UnitTest
+    waitFor:
+      - Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+    id: Push
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - services
+      - update
+      - $_SERVICE_NAME
+      - '--platform=managed'
+      - '--image=$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+      - >-
+        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
+      - '--region=$_DEPLOY_REGION'
+      - '--quiet'
+    id: Deploy
+    entrypoint: gcloud
+#  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+#    args:
+#      - run
+#      - services
+#      - update
+#      - $_SERVICE_NAME_DEV
+#      - '--platform=managed'
+#      - '--image=$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME_DEV:$COMMIT_SHA'
+#      - >-
+#        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
+#      - '--region=$_DEPLOY_REGION'
+#      - '--quiet'
+#    id: Deploy-Dev
+#    entrypoint: gcloud
+images:
+  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _DEPLOY_REGION: asia-east1
+  _GCR_HOSTNAME: asia.gcr.io
+  _PLATFORM: managed
+  _SERVICE_NAME: your-project-name
+  _LABELS: gcb-trigger-id={id-here}
+  _TRIGGER_ID: {id-here}
+tags:
+  - gcp-cloud-build-deploy-cloud-run
+  - gcp-cloud-build-deploy-cloud-run-managed
+  - your-project-name
+timeout: 900s

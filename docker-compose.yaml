@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  web:
+    volumes:
+      - .:/your-project-name
+    ports:
+      - 8081:80
+    env_file:
+      - .env
+    entrypoint: ["/your-project-name/docker/web_entrypoint.sh"]
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - GS_CREDENTIALS=${GS_CREDENTIALS}
+    build: .
+    links:
+      - redis:redis
+    networks:
+      - your-project-name-network
+
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=your-project-name
+      - POSTGRES_USER=your-user-name
+      - POSTGRES_PASSWORD=your-password
+    ports:
+      - "5432:5432"
+  unittest:
+    volumes:
+      - .:/your-project-name
+    depends_on:
+      - db
+    entrypoint: [ "/your-project-name/docker/unit_test_entrypoint.sh" ]
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DB_HOST=db
+      - DB_PORT=5432
+    build: .
+
+  redis:
+    image: "redis:alpine"
+    command: redis-server
+    ports:
+      - "6380:6379"
+    networks:
+      - your-project-name-network
+
+networks:
+  your-project-name-network:
+    driver: bridge
