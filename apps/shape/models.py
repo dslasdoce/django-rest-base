@@ -6,21 +6,22 @@ from rest_framework.serializers import ValidationError
 
 
 class Shape(BaseModel):
-    # list the parameter required by shape types here for easy access. will be
-    # useful once we add more shapes like trapezoid that has 2 bases
-    __parameter_fields = ['length', 'width']
+    """
+    To add types:
+        1. create your shape module under the shape/types dir
+        2. define your shape class by inheriting ShapeTypeAbstract and
+           making sure you implement the abstract methods and required attrs
+    """
 
     name = models.CharField(max_length=256)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=32,
                             choices=ShapeTypeAbstract.as_choices())
 
-    # shape PARAMETERS. for now we only need length and width
-    # it is better to just have each possible parameter declared here instead
-    # of a JSON field that can hold variable parameter types so we can easily
-    # do analysis/queries later like clustering the by shapes and sizes
-    length = models.FloatField(null=True)
-    width = models.FloatField(null=True)
+    # different shapes will have different parameters
+    # (e.g. triangle only needs 3 sides
+    # but trapezoid will need base 1, base 2, side_1, side_2)
+    parameters = models.JSONField()
 
     def __str__(self):
         return f'Shape {self.id} ({self.type}) - {self.name}'
@@ -28,10 +29,6 @@ class Shape(BaseModel):
     @property
     def type_class(self):
         return ShapeTypeAbstract.from_shape_type_name(self.type)
-
-    @property
-    def parameters(self):
-        return {p: getattr(self, p) for p in self.__parameter_fields}
 
     def save(self, *args, **kwargs):
         # make sure that the shape being created has all the abstract method

@@ -34,7 +34,7 @@ from apps.shape import views as shape
 router = DefaultRouter()
 router.register('profiles', account.ProfileViewSet, basename='profiles')
 router.register('my-profile', account.ProfileViewSet, basename='my-profile')
-router.register('shape', shape.ShapeViewSet, basename='shape')
+router.register('shapes', shape.ShapeViewSet, basename='shapes')
 
 urlpatterns = [
     # admin

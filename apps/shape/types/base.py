@@ -11,29 +11,35 @@ class ShapeTypeMetaclass(abc.ABCMeta):
 
 
 class ShapeTypeAbstract(metaclass=ShapeTypeMetaclass):
+    # make sure to declare parameters, refer to the Shape Model fields
+    # for possible parameters
     parameters = []
     __shape__classes = []
 
     def __init__(self, parameters):
+        """
+        If this method is overridden make sure that super is called
+        """
         if not len(self.parameters):
             raise NotImplementedError('PARAMETERS must be declared')
         for parameter in self.parameters:
             try:
                 value = parameters[parameter]
-                if value:
+                if value and (isinstance(value, float) or isinstance(value, int)):
                     setattr(self, parameter, value)
                 else:
                     raise ValidationError({
                         parameter:
                             f'{self.__class__.__name__} '
-                            f'parameter "{parameter}" cannot be "0" or "null"'
+                            f'parameter "{parameter}" '
+                            f'must be numeric and non zero'
                          }
                     )
             except KeyError:
                 raise ValidationError({
                     parameter:
                         f'{self.__class__.__name__} '
-                        f'parameter "{parameter}" must be declared'})
+                        f'parameter "{parameter}" is required'})
 
     @classmethod
     def children_names(cls):

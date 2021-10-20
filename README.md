@@ -1,5 +1,7 @@
 # Installation
-Install postgres
+Install postgres (only if you want to use postgres, for testing 
+you may use sqlite since this porject
+currently do not have postgres specific queries)
 ```
 sudo apt-get update
 sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
@@ -19,8 +21,8 @@ pip install -r requirements.txt
 ## For Terminal Users
 ```
     conda activate env-name
-    python manage.py migrate
-    python manage.py runserver localhost:8080
+    python manage.py migrate --settings=core.settings.local
+    python manage.py runserver localhost:8080 --settings=core.settings.local
 ```
 
 # Deployment
