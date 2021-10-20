@@ -19,6 +19,17 @@ import newrelic.agent
 
 ALLOWED_HOSTS = ['localhost']
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'your-project-name',
+        'USER': 'your-user-name',
+        'PASSWORD': 'your-password',
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432')
+    }
+}
+
 # Setup Firebase for notification
 # FIREBASE_CREDENTIALS = json.loads(os.environ.get('FIREBASE_CREDENTIALS', '{}'))
 # initialize_app(credentials.Certificate(FIREBASE_CREDENTIALS))
@@ -41,20 +52,3 @@ CACHES = {
 
 # New Relic
 newrelic.agent.initialize(os.path.join(BASE_DIR, 'newrelic.ini'))
-
-
-# Sentry
-sentry_sdk.init(
-    dsn="your-project-name-sentry-sdn",
-    integrations=[DjangoIntegration()],
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0,
-
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
-

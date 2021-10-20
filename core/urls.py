@@ -27,12 +27,14 @@ from apps.user import views as user
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from apps.shape import views as shape
 
 
 # viewset routers
 router = DefaultRouter()
 router.register('profiles', account.ProfileViewSet, basename='profiles')
 router.register('my-profile', account.ProfileViewSet, basename='my-profile')
+router.register('shape', shape.ShapeViewSet, basename='shape')
 
 urlpatterns = [
     # admin

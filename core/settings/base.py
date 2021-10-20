@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     'django_filters',
     'apps.user',
     'apps.account',
-    'corsheaders'
+    'apps.shape',
 ]
 
 MIDDLEWARE = [
